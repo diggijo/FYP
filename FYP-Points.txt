@@ -1,0 +1,39 @@
+Reword research question. Yes or No answer. Can you buid a digital twin to mimic real time crane movement?
+
+Modern visualisation products.
+
+Case Study - Existing UI, picture. Description of how its used on daily basis. Is it stored? Where? Describe existing product.
+Diagnostics and Monitoring. Crane Management System. WPF language.
+INFORMATION OVERLOAD. TOO MUCH NOISE
+Messaging system on every day in PLC.
+Crane monitoring & Crane Diagnostics in the form of average metrics.
+Engineering level monitoring.
+One stop shop for all metrics.
+Collects data:
+Directly off Crane PLC using SignalR & OPC
+From trace file. Every hour on the crane. ~35000 signals.
+From feedback array in PLC. Builds job and load statistics tables in SQL.
+TCPIP collections out of port 6000-5000. PLC specific interface to listen and sends data to a client server architecture in datagram packet. Has to be stripped headered etc in c#.
+
+OPC Server connected to PLC and we query it for certain variables and send to azure database.
+
+Digital Twins in fleet monitoring & in Unity. Tutorial.
+- Industry 4.0.
+- Mario Kart Time Trials.
+- Water Treatment Plants.
+
+Big Data & visualising it.
+
+IoT. Cleaning data, classification
+
+Training drivers on how to land spreader based on conditions, weight, tilt of ship etc.
+
+Speed on landing in automated and unautomated crane. Warning if coming in too fast.
+
+Trend analysis on the speed of the spreader.
+
+Split data into Spatial Data, Loads, Status. (Classifiers)
+Unity Prototype. Modelling.
+Crane Schematics
+Characteristics & Dynamics of a crane.
+Basics physics and forces acting on a crane.
