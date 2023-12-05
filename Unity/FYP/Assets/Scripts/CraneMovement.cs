@@ -5,34 +5,26 @@ using UnityEngine;
 public class CraneMovement : MonoBehaviour
 {
     [SerializeField] GameObject trolley;
-    private float trolleyPos = 0;
-    private const float MAX_T_DISTANCE = 100f;
-    private const float MOVE_SPEED = 10f;
-    private bool reachedEnd = false;
+    private float trolleyPosition;
+    private const float MIN_T_DISTANCE = -30f;
+    private const float MAX_T_DISTANCE = 90f;
+    private ReadData data;
+
+    private void Start()
+    {
+        data = FindObjectOfType<ReadData>();
+        
+    }
 
     private void Update()
     {
-        if (!reachedEnd && trolleyPos < MAX_T_DISTANCE)
-        {
-            trolleyPos += MOVE_SPEED * Time.deltaTime;
-            trolley.transform.Translate(Vector3.right * MOVE_SPEED * Time.deltaTime);
-            
-        }
+        trolleyPosition = data.trolleyPos;
+        Debug.Log(trolleyPosition);
 
-        else
-        {
-            reachedEnd = true;
-        }
+       Vector3 trolleyPositionVector = trolley.transform.position;
 
-        if (reachedEnd && trolleyPos > 0f)
-        {
-            trolleyPos -= MOVE_SPEED * Time.deltaTime;
-            trolley.transform.Translate(Vector3.left * MOVE_SPEED * Time.deltaTime);
-        }
+        trolleyPositionVector.z = trolleyPosition;
 
-        else
-        {
-            reachedEnd = false;
-        }
+        trolley.transform.position = trolleyPositionVector;
     }
 }
