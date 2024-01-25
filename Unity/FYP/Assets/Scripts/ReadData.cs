@@ -9,6 +9,7 @@ public class ReadData : MonoBehaviour
     public string csvFilePath = "Data/CraneData.csv";
     private const float LOOP_DELAY = 0;//.2f;
     internal float trolleyPos;
+    internal float hoistPos;
 
     private void Start()
     {
@@ -39,8 +40,10 @@ public class ReadData : MonoBehaviour
             string[] rowData = line.Split(',');
 
             string trolleyPosString = rowData[Array.IndexOf(headers, "Trolley_Position")];
+            string hoistPosString = rowData[Array.IndexOf(headers, "Hoist_Position")];
 
             trolleyPos = float.Parse(trolleyPosString);
+            hoistPos = float.Parse(hoistPosString);
 
             yield return new WaitForSeconds(LOOP_DELAY);
         }
