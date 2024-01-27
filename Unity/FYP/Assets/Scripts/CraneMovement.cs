@@ -31,8 +31,6 @@ public class CraneMovement : MonoBehaviour
 
         float unityTrolleyPos = calculateUnityPosition(trolleyPosition);
 
-        Debug.Log(trolleyPosition + ": " + unityTrolleyPos);
-        Debug.Log("Hoise Position: " + hoistPosition);
         trolleyPositionVector.z = unityTrolleyPos;
 
         trolley.transform.position = trolleyPositionVector;
