@@ -9,7 +9,17 @@ public class ReadData : MonoBehaviour
     public string csvFilePath = "Data/CraneData.csv";
     private const float LOOP_DELAY = 0;//.2f;
     internal float trolleyPos;
+    internal string trolleyPosString;
     internal float hoistPos;
+    internal string hoistPosString;
+    internal DateTime date;
+    private bool initialConditionMet = false;
+    internal bool hasContainer = false;
+    internal float totalLoad;
+    internal float windSpeed;
+    internal bool isLocked;
+    internal bool isUnlocked;
+    internal bool isLanded;
 
     private void Start()
     {
@@ -39,11 +49,40 @@ public class ReadData : MonoBehaviour
 
             string[] rowData = line.Split(',');
 
-            string trolleyPosString = rowData[Array.IndexOf(headers, "Trolley_Position")];
-            string hoistPosString = rowData[Array.IndexOf(headers, "Hoist_Position")];
+            trolleyPosString = rowData[Array.IndexOf(headers, "Trolley_Position")];
+            hoistPosString = rowData[Array.IndexOf(headers, "Hoist_Position")];
+            string dateTime = rowData[Array.IndexOf(headers, "Timestamp")];
+            int modeInt = int.Parse(rowData[Array.IndexOf(headers, "Mode")]);
+            string windSpeedString = rowData[Array.IndexOf(headers, "Wind_Speed")];
+            string totalLoadString = rowData[Array.IndexOf(headers, "Hoist_TotalLoad")];
+            int isLockLocked = int.Parse(rowData[Array.IndexOf(headers, "TwistLockAreLocked")]);
+            int isLockUnlocked = int.Parse(rowData[Array.IndexOf(headers, "TwistLockedAreUnlocked")]);
+            int isSpreaderLanded = int.Parse(rowData[Array.IndexOf(headers, "SpreaderIsLanded")]);
 
+            if (!hasContainer && isLockLocked > 0)
+            {
+                if (!initialConditionMet)
+                {
+                    initialConditionMet = true;
+                    //containersCarried++;
+                }
+                hasContainer = true;
+            }
+
+            else if (isLockLocked < 1 && isSpreaderLanded < 1)
+            {
+                initialConditionMet = false;
+                hasContainer = false;
+            }
+
+            date = DateTime.Parse(dateTime);
             trolleyPos = float.Parse(trolleyPosString);
             hoistPos = float.Parse(hoistPosString);
+            windSpeed = float.Parse(windSpeedString);
+            totalLoad = float.Parse(totalLoadString);
+            isLocked = isLockLocked == 1 ? true : false;
+            isUnlocked = isLockUnlocked == 1 ? true : false;
+            isLanded = isSpreaderLanded == 1 ? true : false;
 
             yield return new WaitForSeconds(LOOP_DELAY);
         }
