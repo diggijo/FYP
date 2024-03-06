@@ -15,11 +15,14 @@ public class ReadData : MonoBehaviour
     internal DateTime date;
     private bool initialConditionMet = false;
     internal bool hasContainer = false;
+    internal int containersCarried = 0;
     internal float totalLoad;
     internal float windSpeed;
     internal bool isLocked;
     internal bool isUnlocked;
     internal bool isLanded;
+    internal int modeInt;
+    internal char modeChar;
 
     private void Start()
     {
@@ -52,7 +55,7 @@ public class ReadData : MonoBehaviour
             trolleyPosString = rowData[Array.IndexOf(headers, "Trolley_Position")];
             hoistPosString = rowData[Array.IndexOf(headers, "Hoist_Position")];
             string dateTime = rowData[Array.IndexOf(headers, "Timestamp")];
-            int modeInt = int.Parse(rowData[Array.IndexOf(headers, "Mode")]);
+            modeInt = int.Parse(rowData[Array.IndexOf(headers, "Mode")]);
             string windSpeedString = rowData[Array.IndexOf(headers, "Wind_Speed")];
             string totalLoadString = rowData[Array.IndexOf(headers, "Hoist_TotalLoad")];
             int isLockLocked = int.Parse(rowData[Array.IndexOf(headers, "TwistLockAreLocked")]);
@@ -64,7 +67,7 @@ public class ReadData : MonoBehaviour
                 if (!initialConditionMet)
                 {
                     initialConditionMet = true;
-                    //containersCarried++;
+                    containersCarried++;
                 }
                 hasContainer = true;
             }
@@ -83,8 +86,19 @@ public class ReadData : MonoBehaviour
             isLocked = isLockLocked == 1 ? true : false;
             isUnlocked = isLockUnlocked == 1 ? true : false;
             isLanded = isSpreaderLanded == 1 ? true : false;
+            modeChar = checkMode();
 
             yield return new WaitForSeconds(LOOP_DELAY);
         }
+    }
+
+    private char checkMode()
+    {
+        if (modeInt == 0)
+        {
+            return 'M';
+        }
+
+        return 'A';
     }
 }
