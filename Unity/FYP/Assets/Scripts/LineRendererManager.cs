@@ -3,96 +3,70 @@ using System.Net.Http;
 using System;
 using UnityEngine;
 using System.Threading.Tasks;
+using System.Text;
+using System.IO;
 
 public class LineRendererManager : MonoBehaviour
 {
-    [SerializeField] private CraneMovement cm;
     [SerializeField] internal ReadData data;
     private LineRenderer lineRenderer;
-    private LineRenderer automationLineRenderer;
     private Line line;
     private GameObject lineObject;
     private int positionCount;
-    private int automationPosCount;
-    private float quarterSecondTimer = .25f;
-    private const float quarterSecond = .25f;
-    private int cycle = 1;
-    private int previousMode = -1;
-    private float secondTimer = 0;
-    private const float oneSecond = 1f;
-    private float liftCycleTimer = 0;
-    private int cycleID = 1;
+    private int cycle = 0;
+    private float halfSecondTimer = 0;
+    private const float halfSecond = .5f;
     private DateTime startTime;
     private DateTime endTime;
-    private float totalTime;
-
-    void Start()
-    {
-        CreateNewLineRenderer();
-        CreateAutomationLine();
-    }
+    private double totalTime;
+    private string arcPath = "Assets/Data/ArcValues.csv";
+    private string liftCyclePath = "Assets/Data/LiftCycles.csv";
+    private const float MILLISECONDS = 1000f;
 
     void Update()
     {
-        quarterSecondTimer += Time.deltaTime;
-        secondTimer += Time.deltaTime;
-        liftCycleTimer += Time.deltaTime;
+        halfSecondTimer += Time.deltaTime;
 
-        if (quarterSecondTimer >= quarterSecond)
+        if (halfSecondTimer >= halfSecond)
         {
-            automationLineRenderer.positionCount = automationPosCount + 1;
-            automationLineRenderer.SetPosition(automationPosCount, transform.position);
-            automationPosCount++;
-            quarterSecondTimer = 0;
+            if(lineRenderer != null)
+            {
+                lineRenderer.positionCount = positionCount + 1;
+                lineRenderer.SetPosition(positionCount, transform.position);
+                line.AddPoint(data.trolleyPos, data.hoistPos, data.date, data.modeChar);
+                positionCount++;
+                halfSecondTimer = 0;
+            }
         }
 
-        if (secondTimer >= oneSecond)
+
+        if (data.activeMove)
         {
-            lineRenderer.positionCount = positionCount + 1;
-            lineRenderer.SetPosition(positionCount, transform.position);
-            line.AddPoint(data.trolleyPos, data.hoistPos, data.date, data.modeChar);
-            positionCount++;
-            secondTimer = 0;
+            if (data.moveStarted)
+            {
+                cycle++;
+                CreateNewLineRenderer();
+            }
         }
 
-        if (data.modeInt != previousMode)
+        if (data.moveFinished)
         {
-            CreateAutomationLine();
-            previousMode = data.modeInt;
-        }
-
-        if (!data.hasContainer && data.containersCarried >= cycle)
-        {
-            cycle++;
             GetPoints(line);
-            CreateNewLineRenderer();
-            totalTime = liftCycleTimer;
-            Debug.Log("Lift Time: " + totalTime);
-            liftCycleTimer = 0;
+
+            if (lineObject != null)
+            {
+                Destroy(lineObject);
+            }
         }
     }
 
     private void CreateNewLineRenderer()
     {
-        if (lineObject != null)
-        {
-            Destroy(lineObject);
-        }
-
         lineObject = new GameObject("Line " + cycle);
         lineRenderer = lineObject.AddComponent<LineRenderer>();
         positionCount = 0;
         lineRenderer.material.color = Color.yellow;
         line = new Line();
-    }
-
-    private void CreateAutomationLine()
-    {
-        Color lineColor = data.modeInt == 0 ? Color.red : Color.blue;
-        GameObject newLineObject = new GameObject("Line");
-        automationLineRenderer = newLineObject.AddComponent<LineRenderer>();
-        automationLineRenderer.material.color = lineColor;
-        automationPosCount = 0;
     }
 
     private async void GetPoints(Line line)
@@ -106,16 +80,57 @@ public class LineRendererManager : MonoBehaviour
         for (int i = 0; i < line.points.Count; i++)
         {
             Line.Point point = line.points[i];
-            await SendToArcValues(cycleID, i, point.Trolley_Position, point.Hoist_Position, point.DateTime, point.Mode);
+            await WriteToArcValues(arcPath, cycle, i, point.Trolley_Position, point.Hoist_Position, point.DateTime, point.Mode);
+            //await SendToArcValues(cycleID, i, point.Trolley_Position, point.Hoist_Position, point.DateTime, point.Mode);
 
             startTime = line.points[0].DateTime;
             endTime = line.points[line.points.Count - 1].DateTime;
+            TimeSpan duration = endTime - startTime;
+            totalTime = duration.TotalMilliseconds / MILLISECONDS;
         }
 
-        await SendToLiftCycles(cycleID, startTime, endTime, totalTime);
-        cycleID++;
+        await WriteToLiftCycles(liftCyclePath, cycle, startTime, endTime, totalTime);
+        //await SendToLiftCycles(cycleID, startTime, endTime, totalTime);
     }
 
+
+    private async Task WriteToArcValues(string filePath, int cycleID, int point, float trolleyPos, float hoistPos, DateTime dateTime, char mode)
+    {
+        StringBuilder csvContent = new StringBuilder();
+
+        string csvLine = $"{cycleID},{point},{trolleyPos},{hoistPos},{dateTime},{mode}{Environment.NewLine}";
+
+        csvContent.AppendLine(csvLine);
+
+        try
+        {
+            await File.AppendAllTextAsync(filePath, csvLine);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while writing to the ArcValues file: {ex.Message}");
+        }
+    }
+
+    private async Task WriteToLiftCycles(string filePath, int cycleID, DateTime startTime, DateTime endTime, double totalTime)
+    {
+        StringBuilder csvContent = new StringBuilder();
+
+        string csvLine = $"{cycleID},{startTime},{endTime},{totalTime}{Environment.NewLine}";
+
+        csvContent.AppendLine(csvLine);
+
+        try
+        {
+            await File.AppendAllTextAsync(filePath, csvLine);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while writing to the LiftCycles file: {ex.Message}");
+        }
+    }
+
+    /*
     private async Task SendToArcValues(int cycleID, int point, float trolleyPos, float hoistPos, DateTime dateTime, char mode)
     {
         string functionUrl = "http://localhost:7089/api/SendToArcValues";
@@ -164,5 +179,5 @@ public class LineRendererManager : MonoBehaviour
         {
             Console.WriteLine("Failed to send the values. StatusCode: " + response.StatusCode);
         }
-    }
+    }*/
 }

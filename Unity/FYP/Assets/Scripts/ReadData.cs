@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class ReadData : MonoBehaviour
 {
-    public string csvFilePath = "Data/CraneData.csv";
+    private string csvFilePath = "Data/CraneData.csv";
     private const float LOOP_DELAY = 0;//.2f;
     internal float trolleyPos;
     internal string trolleyPosString;
@@ -23,6 +23,11 @@ public class ReadData : MonoBehaviour
     internal bool isLanded;
     internal int modeInt;
     internal char modeChar;
+    internal int startInt;
+    internal int endInt;
+    internal bool activeMove;
+    internal bool moveStarted;
+    internal bool moveFinished;
 
     private void Start()
     {
@@ -61,6 +66,8 @@ public class ReadData : MonoBehaviour
             int isLockLocked = int.Parse(rowData[Array.IndexOf(headers, "TwistLockAreLocked")]);
             int isLockUnlocked = int.Parse(rowData[Array.IndexOf(headers, "TwistLockedAreUnlocked")]);
             int isSpreaderLanded = int.Parse(rowData[Array.IndexOf(headers, "SpreaderIsLanded")]);
+            startInt = int.Parse(rowData[Array.IndexOf(headers, "IsStartTime")]);
+            endInt = int.Parse(rowData[Array.IndexOf(headers, "IsEndTime")]);
 
             if (!hasContainer && isLockLocked > 0)
             {
@@ -87,11 +94,35 @@ public class ReadData : MonoBehaviour
             isUnlocked = isLockUnlocked == 1 ? true : false;
             isLanded = isSpreaderLanded == 1 ? true : false;
             modeChar = checkMode();
-
+            checkMove();
             yield return new WaitForSeconds(LOOP_DELAY);
         }
     }
 
+    private void checkMove()
+    {
+        if(startInt == 1)
+        {
+            moveStarted = true;
+            activeMove = true;
+        }
+
+        else
+        {
+            moveStarted = false;
+        }
+
+        if (endInt == 1)
+        {
+            moveFinished = true;
+            activeMove = false;
+        }
+
+        else
+        {
+            moveFinished = false;
+        }
+    }
     private char checkMode()
     {
         if (modeInt == 0)
