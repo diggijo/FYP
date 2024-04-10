@@ -14,8 +14,8 @@ public class LineRendererManager : MonoBehaviour
     private GameObject lineObject;
     private int positionCount;
     private int cycle = 0;
-    private float halfSecondTimer = 0;
-    private const float halfSecond = .5f;
+    private float SecondTimer = 0;
+    private const float Second = 1f;
     private DateTime startTime;
     private DateTime endTime;
     private double totalTime;
@@ -25,9 +25,9 @@ public class LineRendererManager : MonoBehaviour
 
     void Update()
     {
-        halfSecondTimer += Time.deltaTime;
+        SecondTimer += Time.deltaTime;
 
-        if (halfSecondTimer >= halfSecond)
+        if (SecondTimer >= Second)
         {
             if(lineRenderer != null)
             {
@@ -35,9 +35,10 @@ public class LineRendererManager : MonoBehaviour
                 lineRenderer.SetPosition(positionCount, transform.position);
                 line.AddPoint(data.trolleyPos, data.hoistPos, data.date, data.modeChar);
                 positionCount++;
-                halfSecondTimer = 0;
+                SecondTimer = 0;
             }
         }
+
 
 
         if (data.activeMove)

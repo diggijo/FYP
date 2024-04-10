@@ -13,6 +13,7 @@ public class ReadData : MonoBehaviour
     internal float hoistPos;
     internal string hoistPosString;
     internal DateTime date;
+    internal TimeSpan timeOfDay;
     private bool initialConditionMet = false;
     internal bool hasContainer = false;
     internal int containersCarried = 0;
@@ -86,6 +87,7 @@ public class ReadData : MonoBehaviour
             }
 
             date = DateTime.Parse(dateTime);
+            timeOfDay = date.TimeOfDay;
             trolleyPos = float.Parse(trolleyPosString);
             hoistPos = float.Parse(hoistPosString);
             windSpeed = float.Parse(windSpeedString);
