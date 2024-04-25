@@ -28,14 +28,10 @@ public class Manager : MonoBehaviour
     }
     void FixedUpdate()
     {
-        //TextBoxUpdate();
         UIUpdate();
 
         timeUI.text = data.date.ToString("HH:mm:ss");
         dateUI.text = data.date.ToString("dd/MM/yyyy");
-
-        //OldHoistValue = data.HoistRValue;
-        //OldTrolleyValue = data.TrolleyRValue;
     }
 
     private void UIUpdate()
@@ -94,24 +90,4 @@ public class Manager : MonoBehaviour
     {
         return craneMovement.hoist_percent;
     }
-
-    /*
-    private void TextBoxUpdate()
-    {
-        HoistHeight = data.HoistPosAsString;
-
-        for (int i = 0; i < HoistHeights.Length; i++)
-        {
-            HoistHeights[i].text = HoistHeight;
-        }
-
-        TravelUnrounded = craneMovement.TrolleyPercentage * (craneMovement.MaxBoom - craneMovement.MinBoom);
-
-        TravelDistance = data.TrolleyPosAsString;
-
-        for (int i = 0; i < TravelDistances.Length; i++)
-        {
-            TravelDistances[i].text = TravelDistance;
-        }
-    }*/
 }
