@@ -16,6 +16,7 @@ public class CraneMovement : MonoBehaviour
     private ReadData data;
     internal float trolley_percent;
     internal float hoist_percent;
+    private float movementSpeed = 2f;
 
     
 
